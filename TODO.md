@@ -10,16 +10,16 @@
 - [x] **#2** Create User model and schema
 - [x] **#3** Create auth routes (register & login)
 - [x] **#4** Create JWT middleware
-- [x] **#5** Test authentication endpoints
+- [x] **#5** Test authentication endpoints 
 
 ---
 
 ## Phase 2a — Resume Processing (Week 2)
 
-- [ ] **#6** Create Resume model and schema
-- [ ] **#7** Create resume upload endpoint with multer
-- [ ] **#8** Integrate pdf-parse for text extraction
-- [ ] **#9** Test PDF upload and extraction
+- [x] **#6** Create Resume model and schema
+- [x] **#7** Create resume upload endpoint with multer
+- [x] **#8** Integrate pdf-parse for text extraction
+- [x] **#9** Test PDF upload and extraction
 
 ---
 
@@ -100,11 +100,11 @@
 | Phase | Done | Total |
 |-------|------|-------|
 | Phase 1 — Infrastructure | 5 | 5 |
-| Phase 2a — Resume Processing | 0 | 4 |
+| Phase 2a — Resume Processing | 4 | 4 |
 | Phase 2b — Claude API | 0 | 6 |
 | Phase 2c — Job Matching | 0 | 5 |
 | Phase 2d — Reports | 0 | 2 |
 | Phase 2e — Backend Polish | 0 | 2 |
 | Phase 3 — Frontend | 0 | 13 |
 | Phase 4 — QA & Launch | 0 | 14 |
-| **Total** | **5** | **51** |
+| **Total** | **9** | **51** |

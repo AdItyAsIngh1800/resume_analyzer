@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from '../config/database.js';
 import authRoutes from './routes/auth.js';
+import resumeRoutes from './routes/resumes.js';
 
 dotenv.config();
 
@@ -22,7 +23,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
-// app.use('/api/resumes', resumeRoutes);   // Task #7
+app.use('/api/resumes', resumeRoutes);
 // app.use('/api/jobs', jobRoutes);          // Task #16
 
 // Error handler (placeholder — full middleware added in Task #23)
