@@ -1,49 +1,36 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import { connectDB } from '../config/database.js';
+import authRoutes from './routes/auth.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+}));
 app.use(express.json());
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
-
-// Database connection
-async function connectDB() {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✓ MongoDB connected');
-  } catch (error) {
-    console.error('✗ MongoDB connection failed:', error.message);
-    process.exit(1);
-  }
-}
+app.use(express.urlencoded({ extended: true }));
 
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// TODO: Routes will be added here
-// app.use('/api/auth', authRoutes);
-// app.use('/api/resumes', resumeRoutes);
-// app.use('/api/analysis', analysisRoutes);
-// app.use('/api/matches', matchRoutes);
+app.use('/api/auth', authRoutes);
+// app.use('/api/resumes', resumeRoutes);   // Task #7
+// app.use('/api/jobs', jobRoutes);          // Task #16
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.status || 500).json({
-    error: err.message || 'Internal server error',
-  });
+// Error handler (placeholder — full middleware added in Task #23)
+app.use((err, req, res, _next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
-// Start server
 async function start() {
   await connectDB();
   app.listen(PORT, () => {
@@ -51,4 +38,7 @@ async function start() {
   });
 }
 
-start().catch(console.error);
+start().catch((err) => {
+  console.error('Failed to start server:', err.message);
+  process.exit(1);
+});
