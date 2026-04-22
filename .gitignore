@@ -19,7 +19,9 @@ ENV/
 *.swp
 *.swo
 *.swn
-.DS_Store
+
+# Claude Code (local machine overrides only; settings.json is committed)
+.claude/settings.local.json
 
 # Build outputs
 dist/
@@ -46,3 +48,11 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Python virtual environments
+*.egg-info/
+dist-info/
