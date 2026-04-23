@@ -7,6 +7,8 @@ import Resume from '../models/Resume.js';
 import AnalysisResult from '../models/AnalysisResult.js';
 import User from '../models/User.js';
 import { requireAuth } from '../middleware/auth.js';
+import { validateObjectId } from '../middleware/validate.js';
+import { ApiError } from '../middleware/errorHandler.js';
 import { analyzeResume } from '../services/gemini.js';
 
 const router = Router();
@@ -83,7 +85,7 @@ router.get('/', requireAuth, async (req, res, next) => {
 });
 
 // GET /api/resumes/:id  — get single resume
-router.get('/:id', requireAuth, async (req, res, next) => {
+router.get('/:id', requireAuth, validateObjectId('id'), async (req, res, next) => {
   try {
     const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id });
     if (!resume) return res.status(404).json({ error: 'Resume not found' });
@@ -94,7 +96,7 @@ router.get('/:id', requireAuth, async (req, res, next) => {
 });
 
 // POST /api/resumes/:id/analyze  — run Gemini analysis on uploaded resume
-router.post('/:id/analyze', requireAuth, async (req, res, next) => {
+router.post('/:id/analyze', requireAuth, validateObjectId('id'), async (req, res, next) => {
   try {
     const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id });
     if (!resume) {
@@ -166,7 +168,7 @@ router.post('/:id/analyze', requireAuth, async (req, res, next) => {
 });
 
 // GET /api/resumes/:id/analysis  — retrieve analysis results
-router.get('/:id/analysis', requireAuth, async (req, res, next) => {
+router.get('/:id/analysis', requireAuth, validateObjectId('id'), async (req, res, next) => {
   try {
     const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id });
     if (!resume) {
@@ -185,7 +187,7 @@ router.get('/:id/analysis', requireAuth, async (req, res, next) => {
 });
 
 // GET /api/resumes/:id/matches  — find matching jobs based on extracted skills
-router.get('/:id/matches', requireAuth, async (req, res, next) => {
+router.get('/:id/matches', requireAuth, validateObjectId('id'), async (req, res, next) => {
   try {
     const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id });
     if (!resume) {
@@ -212,7 +214,7 @@ router.get('/:id/matches', requireAuth, async (req, res, next) => {
 });
 
 // GET /api/resumes/:id/report  — download PDF report of the analysis
-router.get('/:id/report', requireAuth, async (req, res, next) => {
+router.get('/:id/report', requireAuth, validateObjectId('id'), async (req, res, next) => {
   try {
     const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id });
     if (!resume) {

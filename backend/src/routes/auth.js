@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { requireAuth } from '../middleware/auth.js';
+import { validateBody } from '../middleware/validate.js';
+import { ApiError } from '../middleware/errorHandler.js';
 
 const router = Router();
 
@@ -10,22 +13,23 @@ function signToken(userId) {
   });
 }
 
-// POST /api/auth/register
-router.post('/register', async (req, res, next) => {
+const registerRules = [
+  { field: 'name', type: 'string', required: true, minLength: 1, maxLength: 100 },
+  { field: 'email', type: 'email', required: true, maxLength: 254 },
+  { field: 'password', type: 'string', required: true, minLength: 8, maxLength: 128 },
+];
+
+const loginRules = [
+  { field: 'email', type: 'email', required: true },
+  { field: 'password', type: 'string', required: true },
+];
+
+router.post('/register', validateBody(registerRules), async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'name, email, and password are required' });
-    }
-    if (password.length < 8) {
-      return res.status(400).json({ error: 'Password must be at least 8 characters' });
-    }
-
     const existing = await User.findOne({ email });
-    if (existing) {
-      return res.status(409).json({ error: 'An account with that email already exists' });
-    }
+    if (existing) throw new ApiError(409, 'An account with that email already exists');
 
     const user = await User.create({ name, email, passwordHash: password });
     const token = signToken(user._id);
@@ -36,18 +40,13 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
-// POST /api/auth/login
-router.post('/login', async (req, res, next) => {
+router.post('/login', validateBody(loginRules), async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'email and password are required' });
-    }
-
     const user = await User.findOne({ email }).select('+passwordHash');
     if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      throw new ApiError(401, 'Invalid email or password');
     }
 
     const token = signToken(user._id);
@@ -57,22 +56,12 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
-// GET /api/auth/me  (requires auth — middleware added in Task #4)
-router.get('/me', async (req, res, next) => {
+router.get('/me', requireAuth, async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Missing authorization token' });
-    }
-    const token = authHeader.split(' ')[1];
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(payload.sub);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    const user = await User.findById(req.user._id);
+    if (!user) throw new ApiError(404, 'User not found');
     res.json({ user: user.toSafeObject() });
   } catch (err) {
-    if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Invalid or expired token' });
-    }
     next(err);
   }
 });

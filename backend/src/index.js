@@ -1,9 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
 import { connectDB } from '../config/database.js';
 import authRoutes from './routes/auth.js';
 import resumeRoutes from './routes/resumes.js';
+import { errorHandler, notFound } from './middleware/errorHandler.js';
 
 dotenv.config();
 
@@ -14,23 +16,36 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// Health check
+// Global rate limiter — 100 req / 15 min per IP
+app.use('/api/', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests — please try again later' },
+}));
+
+// Tighter limit on auth endpoints to deter brute-forcing
+app.use('/api/auth/', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts — please try again later' },
+}));
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
-// app.use('/api/jobs', jobRoutes);          // Task #16
 
-// Error handler (placeholder — full middleware added in Task #23)
-app.use((err, req, res, _next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
-});
+app.use(notFound);
+app.use(errorHandler);
 
 async function start() {
   await connectDB();
