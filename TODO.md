@@ -53,26 +53,26 @@
 
 ## Phase 2e — Backend Polish
 
-- [ ] **#23** Create error handling middleware
-- [ ] **#24** Add input validation to all endpoints
+- [x] **#23** Create error handling middleware
+- [x] **#24** Add input validation to all endpoints
 
 ---
 
 ## Phase 3 — Frontend (Weeks 5–7)
 
-- [ ] **#25** Create Home / Landing page
-- [ ] **#26** Create Auth pages (register & login forms)
-- [ ] **#27** Create Upload page with drag-and-drop
-- [ ] **#28** Create Results page with skill display
-- [ ] **#29** Create ATS score visualization component
-- [ ] **#30** Create Job Matches page
-- [ ] **#31** Create User Dashboard page
-- [ ] **#32** Create Header / Navigation component
-- [ ] **#33** Setup React Router navigation
-- [ ] **#34** Setup Zustand state management
-- [ ] **#35** Create API utility functions
-- [ ] **#36** Add loading states throughout UI
-- [ ] **#37** Add error boundaries and error display
+- [x] **#25** Create Home / Landing page
+- [x] **#26** Create Auth pages (register & login forms)
+- [x] **#27** Create Upload page with drag-and-drop
+- [x] **#28** Create Results page with skill display
+- [x] **#29** Create ATS score visualization component
+- [x] **#30** Create Job Matches page
+- [x] **#31** Create User Dashboard page
+- [x] **#32** Create Header / Navigation component
+- [x] **#33** Setup Next.js router navigation
+- [x] **#34** Setup Zustand state management
+- [x] **#35** Create API utility functions
+- [x] **#36** Add loading states throughout UI
+- [x] **#37** Add error boundaries and error display
 
 ---
 
@@ -104,7 +104,7 @@
 | Phase 2b — Gemini API | 6 | 6 |
 | Phase 2c — Job Matching | 5 | 5 |
 | Phase 2d — Reports | 2 | 2 |
-| Phase 2e — Backend Polish | 0 | 2 |
-| Phase 3 — Frontend | 0 | 13 |
+| Phase 2e — Backend Polish | 2 | 2 |
+| Phase 3 — Frontend | 13 | 13 |
 | Phase 4 — QA & Launch | 0 | 14 |
-| **Total** | **22** | **51** |
+| **Total** | **37** | **51** |
