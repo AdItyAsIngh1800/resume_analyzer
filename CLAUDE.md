@@ -4,396 +4,379 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Resume Analyzer + Job Match Platform** — An AI-powered web application that analyzes resumes using Claude API, calculates ATS scores, identifies skill gaps, and recommends matching jobs.
+**Resume Analyzer + Job Match Platform** — An AI-powered web application that analyzes resumes using the Google Gemini API, calculates ATS scores, identifies skill gaps, recommends matching jobs, and generates downloadable PDF reports.
 
-**Portfolio Value:** Demonstrates full-stack development (React + Node.js), NLP with Claude API, real-world hiring domain knowledge, and production-quality code.
+**Portfolio Value:** Demonstrates full-stack development (React + Node.js), AI integration with structured outputs, real-world hiring domain knowledge, and production-quality code.
+
+---
+
+## Current Status — 22/51 Tasks Complete
+
+| Phase | Status |
+|-------|--------|
+| Phase 1 — Infrastructure | ✅ 5/5 |
+| Phase 2a — Resume Processing | ✅ 4/4 |
+| Phase 2b — Gemini API Integration | ✅ 6/6 |
+| Phase 2c — Job Matching | ✅ 5/5 |
+| Phase 2d — Reports | ✅ 2/2 |
+| Phase 2e — Backend Polish | ⬜ 0/2 |
+| Phase 3 — Frontend | ⬜ 0/13 |
+| Phase 4 — QA & Launch | ⬜ 0/14 |
 
 ---
 
 ## Tech Stack
 
-- **Frontend:** React (Vite) + React Router + Tailwind CSS
-- **Backend:** Node.js + Express
-- **Database:** MongoDB (Atlas for production, local for development)
-- **AI:** Claude API (skill extraction, ATS scoring, recommendations)
-- **PDF Processing:** pdf-parse (upload), pdfkit (report generation)
-- **Authentication:** JWT tokens
-- **Deployment:** Vercel (frontend), Render/Railway (backend)
+- **Backend:** Node.js + Express (ES Modules)
+- **Database:** MongoDB via Mongoose (local Docker or Atlas)
+- **AI:** Google Gemini API (`@google/genai` SDK, `gemini-2.5-flash` model)
+- **PDF Parsing:** `pdf-parse` (upload processing)
+- **PDF Generation:** `pdfkit` (report downloads)
+- **Authentication:** JWT tokens (access: 15m, refresh: 7d)
+- **Frontend:** React (Vite) — _not yet built_
+- **Deployment:** Vercel (frontend), Render/Railway (backend) — _not yet deployed_
 
 ---
 
-## Project Structure
+## Project Structure (Actual)
 
 ```
 resume-analyzer/
 ├── backend/
-│   ├── server.js                 # Express app entry point
-│   ├── package.json
-│   ├── .env.example
-│   ├── config/
-│   │   └── database.js           # MongoDB connection
-│   ├── models/
-│   │   ├── User.js
-│   │   ├── Resume.js
-│   │   ├── AnalysisResult.js
-│   │   └── Job.js
-│   ├── routes/
-│   │   ├── auth.js
-│   │   ├── resumes.js            # Upload, analyze endpoints
-│   │   └── jobs.js               # Job matching endpoints
-│   ├── services/
-│   │   ├── claude-service.js     # All Claude API calls (CRITICAL)
-│   │   ├── job-matcher.js        # Matching algorithm
-│   │   └── report-generator.js   # PDF generation
-│   ├── middleware/
-│   │   ├── auth.js               # JWT verification
-│   │   └── errorHandler.js
-│   ├── data/
-│   │   └── sample-jobs.json      # Mock job database
-│   └── utils/
-│       └── validators.js
-│
-├── frontend/
 │   ├── src/
-│   │   ├── App.jsx
-│   │   ├── pages/
-│   │   │   ├── Home.jsx          # Landing page
-│   │   │   ├── Upload.jsx        # Resume upload & preview
-│   │   │   ├── Results.jsx       # Analysis results display
-│   │   │   ├── JobMatches.jsx    # Job recommendations
-│   │   │   └── Dashboard.jsx     # User history
-│   │   ├── components/
-│   │   │   ├── Header.jsx
-│   │   │   ├── SkillCard.jsx     # Skill display component
-│   │   │   ├── JobCard.jsx       # Job match display
-│   │   │   ├── ATSScore.jsx      # ATS visualization
-│   │   │   └── LoadingState.jsx
-│   │   ├── utils/
-│   │   │   ├── api.js            # Axios/fetch wrapper for backend calls
-│   │   │   └── formatters.js
-│   │   └── styles/
-│   │       └── globals.css
+│   │   ├── index.js                    # Express entry point (port 8080)
+│   │   ├── middleware/
+│   │   │   └── auth.js                 # JWT verification (requireAuth)
+│   │   ├── models/
+│   │   │   ├── User.js                 # User schema (name, email, password, plan, analysisCount)
+│   │   │   ├── Resume.js               # Resume schema (userId, fileName, extractedText, status)
+│   │   │   ├── AnalysisResult.js       # AI analysis results (skills, atsScore, improvements, etc.)
+│   │   │   └── Job.js                  # Job listings (title, requiredSkills, niceToHaveSkills, etc.)
+│   │   ├── routes/
+│   │   │   ├── auth.js                 # POST /register, /login, GET /me
+│   │   │   └── resumes.js              # Upload, analyze, matches, report endpoints
+│   │   ├── services/
+│   │   │   ├── gemini.js               # Gemini API — skill extraction, ATS scoring, missing skills
+│   │   │   ├── jobMatcher.js           # Weighted skill-matching algorithm
+│   │   │   └── reportGenerator.js      # pdfkit-based PDF report generation
+│   │   ├── controllers/                # (empty — logic is in route handlers)
+│   │   └── utils/                      # (placeholder for validators)
+│   ├── config/
+│   │   └── database.js                 # MongoDB connection helper
+│   ├── scripts/
+│   │   └── seed-jobs.js                # Seeds 20 sample jobs into MongoDB
+│   ├── data/
+│   │   └── sample-resumes/             # Test PDF files
+│   ├── tests/
+│   │   ├── test-auth.js                # Auth endpoint tests
+│   │   ├── test-upload.js              # PDF upload tests
+│   │   ├── test-analysis.js            # Gemini analysis E2E tests (42 assertions)
+│   │   └── test-jobs.js                # Job matching E2E tests (13 assertions)
 │   ├── package.json
-│   ├── .env.example
-│   └── vite.config.js
+│   └── .env                            # Environment variables
 │
-└── README.md                     # Portfolio documentation
+├── frontend/                           # Not yet built
+├── CLAUDE.md                           # This file
+├── PRD.md                              # Product requirements
+├── DESIGN.md                           # UI design system + wireframes
+├── TODO.md                             # Task tracker (22/51)
+├── docker-compose.yml                  # MongoDB container
+└── README.md
 ```
 
 ---
 
 ## Development Commands
 
-### Backend Setup
+### Prerequisites
+```bash
+docker compose up -d                   # Start MongoDB on port 27017
+```
+
+### Backend
 ```bash
 cd backend
 npm install
-cp .env.example .env              # Configure: MONGODB_URI, CLAUDE_API_KEY
-npm run dev                       # Start dev server (port 5000)
-npm test                          # Run tests
+cp .env.example .env                   # Configure: MONGODB_URI, GEMINI_API_KEY
+npm run dev                            # Start dev server (port 8080, via nodemon)
+npm run start                          # Production start
 ```
 
-### Frontend Setup
+### Seed Jobs
 ```bash
-cd frontend
-npm install
-cp .env.example .env              # Configure: VITE_API_URL=http://localhost:5000
-npm run dev                       # Start dev server (port 5173)
-npm run build                     # Production build
+cd backend
+node scripts/seed-jobs.js              # Populates 20 sample tech jobs
 ```
 
-### Full Stack Development
+### Run Tests
 ```bash
-# Terminal 1: Backend
-cd backend && npm run dev
-
-# Terminal 2: Frontend
-cd frontend && npm run dev
-
-# Visit http://localhost:5173
+cd backend
+node tests/test-auth.js                # Auth tests (no external API needed)
+node tests/test-upload.js              # Upload tests (needs sample PDF)
+node tests/test-analysis.js            # Gemini tests (needs real GEMINI_API_KEY)
+node tests/test-jobs.js                # Job matching tests (needs seeded jobs)
 ```
 
-### Database Setup
-```bash
-# Local MongoDB (if using)
-mongod
-
-# Or use MongoDB Atlas connection string in .env
+### Environment Variables
+```
+PORT=8080
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/resume-analyzer
+JWT_SECRET=dev_jwt_secret_change_in_production_min_32_chars
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+GEMINI_API_KEY=your_gemini_api_key_here
+FRONTEND_URL=http://localhost:3000
 ```
 
 ---
 
 ## Core Architecture
 
-### Key Data Flow
+### Data Flow
 ```
 User uploads PDF
     ↓
-backend/POST /api/resumes/upload
+POST /api/resumes/upload
     ↓
-pdf-parse extracts text
+pdf-parse extracts text → stored in Resume doc
     ↓
-Store Resume document in MongoDB
+POST /api/resumes/:id/analyze
     ↓
-backend/POST /api/resumes/:id/analyze
-    ↓
-Claude Service makes 3 parallel API calls:
-    • Skill extraction
-    • ATS score calculation
-    • Missing skills identification
+Gemini Service makes 3 parallel API calls:
+    • extractSkills()   → categorized skills with proficiency
+    • scoreATS()        → 0-100 score + feedback + improvements
+    • analyzeMissing()  → 8-12 missing skills with rationale
     ↓
 Store AnalysisResult in MongoDB
     ↓
-backend/GET /api/resumes/:id/matches
+GET /api/resumes/:id/matches
     ↓
-Job Matcher algorithm ranks jobs
+jobMatcher ranks jobs by weighted skill overlap
     ↓
-Frontend displays all results
+GET /api/resumes/:id/report
     ↓
-User downloads PDF report
+pdfkit generates downloadable PDF
 ```
 
-### Critical Files (Most Important)
+### API Endpoints
 
-**`backend/services/claude-service.js`** — Heart of the AI analysis
-- Implements 4 Claude API prompts:
-  1. Skill extraction (returns JSON with skill categories)
-  2. ATS score (0-100 with actionable feedback)
-  3. Missing skills (context-aware gaps for role progression)
-  4. Job ranking (explains why jobs match extracted skills)
-- All prompts should return structured JSON for consistency
-- Use prompt caching to reduce costs on repeated analyses
+```
+# Auth
+POST   /api/auth/register          # User signup → JWT
+POST   /api/auth/login             # User login → JWT
+GET    /api/auth/me                # Get current user profile
 
-**`backend/services/job-matcher.js`** — Matching algorithm
-- Calculates: (skills ∩ required) / required = match %
-- Filters jobs >60% match
-- Integrates with Claude for intelligent ranking
-- Returns top 10 matches sorted by score
+# Resume Management
+POST   /api/resumes/upload         # Upload PDF → extract text (multer, 5MB limit)
+GET    /api/resumes                # List user's resumes
+GET    /api/resumes/:id            # Get single resume
 
-**`backend/models/Resume.js`** — Resume schema
-- Fields: userId, fileName, uploadedAt, extractedText, fileUrl
-- Relations: hasOne AnalysisResult, hasMany matches
+# AI Analysis
+POST   /api/resumes/:id/analyze    # Trigger Gemini analysis (enforces free-tier limit: 3)
+GET    /api/resumes/:id/analysis   # Get stored analysis results
 
-**`backend/models/AnalysisResult.js`** — Analysis schema
-- Stores: skills[], atsScore, missingSkills[], jobMatches[]
-- Links to Resume via resumeId
-- Used for both display and report generation
+# Job Matching
+GET    /api/resumes/:id/matches    # Get top 10 matching jobs
 
-**`frontend/pages/Results.jsx`** — Main analysis display
-- Shows: extracted skills (by category), ATS score with feedback, missing skills
-- Triggers job matching on mount
-- Links to download report
+# Reports
+GET    /api/resumes/:id/report     # Download PDF analysis report
+```
+
+---
+
+## Critical Files
+
+### `backend/src/services/gemini.js` — AI Engine
+- Uses `@google/genai` SDK with `responseJsonSchema` for guaranteed structured JSON output
+- Three functions: `extractSkills()`, `scoreATS()`, `analyzeMissingSkills()`
+- `analyzeResume()` runs all three in parallel via `Promise.all`
+- Model: `gemini-2.5-flash`
+
+### `backend/src/services/jobMatcher.js` — Matching Algorithm
+- Normalizes skills to lowercase for case-insensitive matching
+- Scoring: required skill match = +2 points, nice-to-have = +1 point
+- Returns normalized percentage (0-100%) sorted descending
+- Returns matched skills and missing skills per job
+
+### `backend/src/services/reportGenerator.js` — PDF Reports
+- Uses `pdfkit` to generate multi-page A4 documents
+- Color-coded ATS scores (green ≥80, orange ≥60, red <60)
+- Sections: Executive Summary, Strengths, Weaknesses, Improvements, Skills, Missing Skills
+- Streams directly to HTTP response (no temp files)
+
+### `backend/src/models/AnalysisResult.js` — Analysis Schema
+- Embedded sub-schemas: `skillSchema`, `improvementSchema`, `missingSkillSchema`
+- Skills have 9 categories and 4 proficiency levels
+- Indexed on `{ userId, createdAt }` and `{ resumeId }` (unique)
+
+### `backend/src/routes/resumes.js` — Main Router
+- Handles all resume CRUD, analysis triggering, job matching, and report downloads
+- Enforces free-tier analysis limit (3 per user)
+- Handles Gemini API errors gracefully (502 + resume status set to "error")
+
+---
+
+## Git History
+
+| Commit | Description |
+|--------|-------------|
+| `2e6c9cd` | Initial project scaffold — folder structure, configs |
+| `46e59fc` | Planning docs, dependency fixes, .gitignore hardening |
+| `52c86e1` | Phase 1 — Infrastructure, User model, JWT auth |
+| `9fc86dd` | Phase 2a — Resume upload, pdf-parse, tested |
+| `b0cc3a7` | Phase 2b/2c/2d — Gemini AI, Job Matching, PDF Reports |
+
+---
+
+## What Has Been Built
+
+### Phase 1 — Infrastructure ✅
+- Express server with CORS, rate limiting, JSON body parsing
+- MongoDB connection via Mongoose with Docker Compose
+- User model with bcrypt password hashing
+- JWT authentication (register, login, `requireAuth` middleware)
+- Full auth test suite
+
+### Phase 2a — Resume Processing ✅
+- PDF upload via multer (5MB limit, PDF-only filter)
+- Text extraction using pdf-parse
+- Resume model with status tracking (`uploaded` → `analyzed` / `error`)
+- Upload + list + get-by-id endpoints
+- Upload test suite
+
+### Phase 2b — Gemini API Integration ✅
+- Replaced original Claude API plan with Google Gemini (`@google/genai`)
+- AnalysisResult model with rich embedded schemas
+- Three AI analysis functions with enforced JSON output schemas
+- `POST /api/resumes/:id/analyze` with free-tier enforcement
+- `GET /api/resumes/:id/analysis` to retrieve results
+- 42-assertion E2E test suite
+
+### Phase 2c — Job Matching ✅
+- Job model with required/nice-to-have skills, salary, location, work model
+- Seed script with 20 diverse tech jobs
+- Weighted matching algorithm (required = 2×, nice-to-have = 1×)
+- `GET /api/resumes/:id/matches` returning top 10 matches
+- 13-assertion E2E test suite
+
+### Phase 2d — Reports ✅
+- pdfkit-based PDF report with dynamic formatting
+- Color-coded impact/importance tags
+- Skills grouped by category
+- `GET /api/resumes/:id/report` streams PDF download
+
+---
+
+## What's Next
+
+### Phase 2e — Backend Polish (2 tasks)
+- Error handling middleware (centralized)
+- Input validation on all endpoints
+
+### Phase 3 — Frontend (13 tasks)
+- React app with Vite
+- Pages: Home, Auth, Upload, Results, Job Matches, Dashboard
+- Components: Header, SkillCard, JobCard, ATS visualization
+- State management, API utilities, loading states, error boundaries
+
+### Phase 4 — QA & Launch (14 tasks)
+- Unit + integration tests
+- Manual QA across all flows
+- CI/CD, deployment, monitoring
 
 ---
 
 ## Important Implementation Notes
 
-### Claude API Integration
-- **Prompt Format:** Always structure prompts to return JSON when querying for structured data
-- **Caching:** Use prompt caching (available in claude-3.5 and above) to reduce costs when analyzing similar resumes
-- **Error Handling:** Gracefully handle API errors, show user-friendly messages
-- **Rate Limiting:** Implement to avoid hitting rate limits (especially important for portfolio at higher traffic)
+### Gemini API Integration
+- **SDK:** `@google/genai` with `Type` enum for schema definitions
+- **Structured Output:** Use `responseMimeType: 'application/json'` + `responseJsonSchema`
+- **Error Handling:** Gemini failures return 502, resume status set to `error` for retry
+- **Free Tier:** Generous (15 req/min), but set `GEMINI_API_KEY` in `.env`
+- **Parallel Calls:** All 3 analyses run via `Promise.all` (~5-15s total)
+
+### Authentication
+- JWT access tokens expire in 15 minutes
+- Refresh tokens expire in 7 days
+- Passwords hashed with bcrypt (10 rounds)
+- `requireAuth` middleware decodes token and attaches `req.user`
+
+### Free-Tier Enforcement
+- Users on the `free` plan get 3 analyses
+- `user.analysisCount` is incremented on each successful analysis
+- Exceeding the limit returns 403 with upgrade prompt
 
 ### PDF Handling
-- **Upload:** Use multer middleware with file size limits (5MB max)
-- **Parsing:** pdf-parse handles most PDFs, but test with various formats
-- **Report Generation:** Use pdfkit or html-to-pdf for clean formatting with styling
-
-### Job Database
-- **Mock Data:** Seed 20-30 sample jobs in `/backend/data/sample-jobs.json`
-- **Job Schema:** Must include requiredSkills array for matching algorithm
-- **Update Path:** When ready for real data, replace sample-jobs.json with API integration
-
-### UI/UX Priorities
-- **Loading States:** Show during PDF upload, analysis, and report generation
-- **Error Boundaries:** Catch and display errors gracefully on frontend
-- **Mobile Responsive:** Ensure works on mobile (important for portfolio demo)
-- **Color Coding:** Green (>80% match), Yellow (50-80%), Red (<50%)
-
----
-
-## Development Sequence (What to Build First)
-
-**Phase 1 (Days 1-2):** Infrastructure
-1. Backend: Express server + MongoDB connection
-2. Frontend: React app with basic routing
-3. Claude service with prompt templates
-
-**Phase 2 (Days 3-4):** Resume Processing
-1. PDF upload endpoint + middleware
-2. Text extraction with pdf-parse
-3. Frontend upload component
-
-**Phase 3 (Days 5-6):** Analysis
-1. Implement all 4 Claude prompts
-2. Analysis endpoint
-3. Results display page
-
-**Phase 4 (Days 7-8):** Job Matching
-1. Mock jobs in MongoDB
-2. Matching algorithm
-3. Job display UI
-
-**Phase 5 (Days 9-10):** Report & Polish
-1. PDF report generation
-2. UI refinement
-3. Error handling
-
-**Phase 6 (Days 11-14):** Deploy
-1. Environment setup
-2. Deploy to Vercel + Render/Railway
-3. Documentation + demo script
-
----
-
-## API Endpoints
-
-### Resume Management
-```
-POST   /api/auth/register          # User signup
-POST   /api/auth/login             # User login
-POST   /api/resumes/upload         # Upload & extract PDF
-POST   /api/resumes/:id/analyze    # Trigger analysis (calls Claude)
-GET    /api/resumes/:id            # Get resume details
-GET    /api/resumes                # List user's resumes
-```
-
-### Analysis & Matching
-```
-GET    /api/resumes/:id/analysis   # Get analysis results
-GET    /api/resumes/:id/matches    # Get job matches
-GET    /api/resumes/:id/report     # Download PDF report
-```
-
-### Job Management (Optional Admin)
-```
-GET    /api/jobs                   # List all jobs (for matching)
-POST   /api/jobs                   # Add job (admin only)
-```
-
----
-
-## Testing & QA
-
-### Manual Testing Checklist
-- [ ] Register user → stored in DB with hashed password
-- [ ] Upload resume PDF → text extracted correctly
-- [ ] Analyze resume → skills, ATS, missing skills returned
-- [ ] View results → all data displayed correctly
-- [ ] Match jobs → jobs ranked >60% match
-- [ ] Download report → PDF generated with all data
-- [ ] Try invalid PDF → graceful error message
-- [ ] Test on mobile → responsive design works
-
-### Sample Test Resumes
-- Create 2-3 sample resumes in `/backend/data/sample-resumes/` for testing
-- Include: Software Engineer, Data Scientist, Product Manager versions
-
----
-
-## Common Tasks
-
-### Add a New Claude Prompt
-1. Edit `backend/services/claude-service.js`
-2. Add new function: `async analyzeX(resumeText) { ... }`
-3. Return structured JSON
-4. Add to Analysis endpoint in `backend/routes/resumes.js`
-5. Update frontend Results page to display new data
-
-### Change Job Matching Logic
-1. Edit `backend/services/job-matcher.js`
-2. Test with sample resumes
-3. Adjust threshold (currently >60%) if needed
-4. Update job card display if showing new fields
-
-### Deploy to Production
-1. Set environment variables in Vercel (frontend) and Render (backend)
-2. Use MongoDB Atlas connection string
-3. Test full flow after deployment
-4. Update README with live demo link
-
----
-
-## Portfolio Demo Script
-
-1. **Show Home Page** — Explain: resume analysis + job matching
-2. **Upload Sample Resume** — Show extraction working (emphasize Claude)
-3. **View Results** — Walk through:
-   - Extracted skills (organized by category)
-   - ATS score with specific improvements needed
-   - Missing skills with learning path
-4. **Job Matches** — Show:
-   - Ranked list with match %
-   - Why each job is recommended
-   - Skill gaps for each role
-5. **Download Report** — Generate and show PDF
-6. **Tech Deep Dive:**
-   - Claude prompts enable intelligent analysis (not just regex)
-   - Job matching considers skill transferability
-   - Full stack with real database
-7. **Ask:** "How would you improve this?" (shows growth mindset)
-
----
-
-## Performance Considerations
-
-- **Resume Parsing:** pdf-parse is fast but test with large PDFs (10+ pages)
-- **Claude API:** 3 parallel calls per resume (~15 seconds total)
-- **Job Matching:** Linear algorithm, fine for <1000 jobs
-- **Database:** Index resumeId, userId for fast queries
-- **Caching:** Consider caching job matches (valid for 24h)
+- **Upload:** multer with memory storage, 5MB limit, PDF MIME-type filter
+- **Parsing:** pdf-parse extracts text; scanned/corrupted PDFs return 422
+- **Reports:** pdfkit streams directly to response (no disk I/O)
 
 ---
 
 ## Security Checklist
 
-- [ ] JWT tokens have expiration (15m access, 7d refresh)
-- [ ] Password hashing with bcrypt (rounds: 10+)
-- [ ] Rate limiting on upload endpoint (prevent abuse)
-- [ ] Input validation on all endpoints
-- [ ] PDF size limit enforced (5MB max)
+- [x] JWT tokens have expiration (15m access, 7d refresh)
+- [x] Password hashing with bcrypt (rounds: 10)
+- [x] Rate limiting on all endpoints
+- [x] PDF size limit enforced (5MB max)
+- [x] CORS properly configured
+- [ ] Input validation on all endpoints (Phase 2e)
+- [ ] Centralized error handling middleware (Phase 2e)
 - [ ] Never log API keys or tokens
-- [ ] CORS properly configured
 - [ ] Use HTTPS in production
 
 ---
 
-## Known Limitations & Future Improvements
+## Common Tasks
 
-**Current (MVP):**
-- ✅ Mock job data (fixed 20-30 jobs)
-- ✅ Email authentication (no social login)
-- ✅ Single resume per analysis
+### Add a New Gemini Prompt
+1. Edit `backend/src/services/gemini.js`
+2. Define a new JSON schema using `Type.*` constants
+3. Add a new function: `export async function analyzeX(resumeText) { ... }`
+4. Add to `analyzeResume()` parallel calls if needed
+5. Update the route in `backend/src/routes/resumes.js`
+6. Add fields to `AnalysisResult.js` schema if storing new data
 
-**Future Enhancements:**
-- Real job API integration (LinkedIn, Indeed, Upwork)
-- User profile optimization over time
-- Skill learning recommendations with resources
-- Resume version comparison
-- Team/admin dashboard
-- Webhook notifications for job matches
-- Advanced filters (location, salary, remote)
+### Change Job Matching Logic
+1. Edit `backend/src/services/jobMatcher.js`
+2. Adjust scoring weights (currently: required=2, nice-to-have=1)
+3. Run `node tests/test-jobs.js` to verify
+4. Consider adding level/location filters
+
+### Add New Sample Jobs
+1. Edit `backend/scripts/seed-jobs.js`
+2. Add entries to the `sampleJobs` array
+3. Run `node scripts/seed-jobs.js` to re-seed
+
+### Deploy to Production
+1. Set environment variables in Render (backend) and Vercel (frontend)
+2. Use MongoDB Atlas connection string for `MONGODB_URI`
+3. Set a strong `JWT_SECRET` (min 32 chars)
+4. Set a real `GEMINI_API_KEY`
+5. Update `FRONTEND_URL` to production domain
+
+---
+
+## Performance Considerations
+
+- **Gemini API:** 3 parallel calls per resume (~5-15 seconds total)
+- **Job Matching:** O(n) linear scan — fine for <1000 jobs
+- **PDF Generation:** Streamed directly to response, no temp files
+- **Database Indexes:** `userId`, `resumeId`, compound indexes for fast queries
+- **Caching:** Consider caching job matches (valid for 24h)
 
 ---
 
 ## Resources
 
-- **Claude API Docs:** https://anthropic.com/docs
+- **Google GenAI SDK:** https://www.npmjs.com/package/@google/genai
+- **Gemini API Docs:** https://ai.google.dev/docs
 - **pdf-parse:** https://www.npmjs.com/package/pdf-parse
 - **pdfkit:** http://pdfkit.org/
 - **MongoDB Docs:** https://docs.mongodb.com/
-- **React Router:** https://reactrouter.com/
 - **Express Guide:** https://expressjs.com/
 
 ---
-
-## Questions to Ask Yourself During Development
-
-1. **Claude Prompts:** Do my prompts return consistent, parseable JSON?
-2. **Skill Extraction:** Does it catch all skills (technical, soft, certifications)?
-3. **ATS Score:** Are the improvement suggestions actionable?
-4. **Job Matching:** Does the algorithm consider transferable skills?
-5. **UI/UX:** Would a recruiter find this useful in a real scenario?
-6. **Error Handling:** What happens if Claude API is down or returns unexpected data?
 
 Good luck building! This is a strong portfolio project. 🚀
