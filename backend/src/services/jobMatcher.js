@@ -15,7 +15,8 @@ export async function findMatchingJobs(userSkills) {
     userSkills.map((s) => s.name?.toLowerCase().trim()).filter(Boolean)
   );
 
-  const jobs = await Job.find({});
+  // Fetch jobs as plain objects (lean) — we don't need Mongoose documents here.
+  const jobs = await Job.find({}).lean();
 
   const matches = jobs.map((job) => {
     let score = 0;

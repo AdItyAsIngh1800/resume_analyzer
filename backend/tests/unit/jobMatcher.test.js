@@ -4,7 +4,8 @@ import Job from '../../src/models/Job.js';
 import { findMatchingJobs } from '../../src/services/jobMatcher.js';
 
 function seedJobs(jobs) {
-  mock.method(Job, 'find', async () => jobs);
+  // Return a chainable query-like object so `.lean()` works.
+  mock.method(Job, 'find', () => ({ lean: async () => jobs }));
 }
 
 describe('findMatchingJobs', () => {

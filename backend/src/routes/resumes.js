@@ -77,7 +77,8 @@ router.get('/', requireAuth, async (req, res, next) => {
     const resumes = await Resume.find({ userId: req.user._id })
       .select('-extractedText')
       .sort({ createdAt: -1 })
-      .limit(20);
+      .limit(20)
+      .lean();
     res.json({ resumes });
   } catch (err) {
     next(err);
@@ -170,12 +171,13 @@ router.post('/:id/analyze', requireAuth, validateObjectId('id'), async (req, res
 // GET /api/resumes/:id/analysis  — retrieve analysis results
 router.get('/:id/analysis', requireAuth, validateObjectId('id'), async (req, res, next) => {
   try {
-    const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id });
+    const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id })
+      .select('_id').lean();
     if (!resume) {
       return res.status(404).json({ error: 'Resume not found' });
     }
 
-    const analysis = await AnalysisResult.findOne({ resumeId: resume._id });
+    const analysis = await AnalysisResult.findOne({ resumeId: resume._id }).lean();
     if (!analysis) {
       return res.status(404).json({ error: 'No analysis found for this resume — run POST /analyze first' });
     }
@@ -189,12 +191,14 @@ router.get('/:id/analysis', requireAuth, validateObjectId('id'), async (req, res
 // GET /api/resumes/:id/matches  — find matching jobs based on extracted skills
 router.get('/:id/matches', requireAuth, validateObjectId('id'), async (req, res, next) => {
   try {
-    const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id });
+    const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id })
+      .select('_id').lean();
     if (!resume) {
       return res.status(404).json({ error: 'Resume not found' });
     }
 
-    const analysis = await AnalysisResult.findOne({ resumeId: resume._id });
+    const analysis = await AnalysisResult.findOne({ resumeId: resume._id })
+      .select('skills').lean();
     if (!analysis) {
       return res.status(400).json({ error: 'Resume has not been analyzed yet. Run analysis first.' });
     }
@@ -231,9 +235,11 @@ router.get('/:id/report', requireAuth, validateObjectId('id'), async (req, res, 
     // Create the PDF doc stream
     const doc = generateReportStream(analysis, resume.fileName);
 
-    // Set headers for PDF download
+    // Sanitize filename for Content-Disposition to prevent header injection
+    // (strip quotes, CR/LF, and keep a conservative safe set).
+    const safeBase = resume.fileName.replace(/[^\w.\- ]+/g, '_').slice(0, 120);
+    const outFileName = safeBase.endsWith('.pdf') ? safeBase : `${safeBase}.pdf`;
     res.setHeader('Content-Type', 'application/pdf');
-    const outFileName = resume.fileName.endsWith('.pdf') ? resume.fileName : `${resume.fileName}.pdf`;
     res.setHeader('Content-Disposition', `attachment; filename="Analysis-Report-${outFileName}"`);
 
     // Pipe the document directly to the response

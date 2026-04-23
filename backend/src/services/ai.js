@@ -199,11 +199,6 @@ export async function analyzeResume(resumeText) {
 
   const prompt = ANALYSIS_PROMPT.replace('{RESUME_TEXT}', resumeText);
   const rawResult = await callOllama(prompt, SYSTEM_PROMPT);
-
-  // Debug: log response completeness
-  console.log(`[AI] Response keys: ${Object.keys(rawResult).join(', ')}`);
-  console.log(`[AI] skills: ${rawResult.skills?.length ?? 0}, missingSkills: ${rawResult.missingSkills?.length ?? 0}`);
-
   const result = validateAndNormalize(rawResult);
 
   const processingTimeMs = Date.now() - start;

@@ -91,8 +91,8 @@
 
 ## Phase 4b — Optimization & Security (Week 9)
 
-- [ ] **#45** Performance testing and optimization
-- [ ] **#46** Security audit and fixes
+- [x] **#45** Performance testing and optimization (`.lean()`, compression, bench script, `docs/PERFORMANCE.md`)
+- [x] **#46** Security audit and fixes (helmet, JWT startup check, filename sanitization, `docs/SECURITY.md`)
 
 ---
 
@@ -123,7 +123,7 @@
 | Phase 2e — Backend Polish | 2 | 2 |
 | Phase 3 — Frontend | 13 | 13 |
 | Phase 4a — Testing & QA | 7 | 7 |
-| Phase 4b — Optimization & Security | 0 | 2 |
+| Phase 4b — Optimization & Security | 2 | 2 |
 | Phase 4c — CI/CD & Deployment | 0 | 3 |
 | Phase 4d — Monitoring & Documentation | 0 | 2 |
-| **Total** | **45** | **52** |
+| **Total** | **47** | **52** |
