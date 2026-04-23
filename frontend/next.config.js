@@ -2,12 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  images: {
-    domains: [],
-  },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
