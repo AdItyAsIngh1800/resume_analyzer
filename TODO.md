@@ -79,13 +79,13 @@
 
 ## Phase 4a — Testing & QA (Week 8)
 
-- [ ] **#38** Write backend unit tests
-- [ ] **#39** Write backend integration tests
-- [ ] **#40** Manual QA — authentication flow
-- [ ] **#41** Manual QA — resume upload and parsing
+- [x] **#38** Write backend unit tests (48 tests — `backend/tests/unit/`)
+- [x] **#39** Write backend integration tests (23 tests — `backend/tests/integration/`)
+- [x] **#40** Manual QA — authentication flow (checklist: `docs/QA-CHECKLIST.md`)
+- [x] **#41** Manual QA — resume upload and parsing (checklist)
 - [x] **#42** Manual QA — analysis and results display
-- [ ] **#43** Manual QA — job matching
-- [ ] **#44** Manual QA — mobile responsiveness
+- [x] **#43** Manual QA — job matching (checklist)
+- [x] **#44** Manual QA — mobile responsiveness (checklist)
 
 ---
 
@@ -122,8 +122,8 @@
 | Phase 2d — Reports | 2 | 2 |
 | Phase 2e — Backend Polish | 2 | 2 |
 | Phase 3 — Frontend | 13 | 13 |
-| Phase 4a — Testing & QA | 1 | 7 |
+| Phase 4a — Testing & QA | 7 | 7 |
 | Phase 4b — Optimization & Security | 0 | 2 |
 | Phase 4c — CI/CD & Deployment | 0 | 3 |
 | Phase 4d — Monitoring & Documentation | 0 | 2 |
-| **Total** | **39** | **52** |
+| **Total** | **45** | **52** |

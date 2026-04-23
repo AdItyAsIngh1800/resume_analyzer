@@ -9,7 +9,7 @@ import User from '../models/User.js';
 import { requireAuth } from '../middleware/auth.js';
 import { validateObjectId } from '../middleware/validate.js';
 import { ApiError } from '../middleware/errorHandler.js';
-import { analyzeResume } from '../services/gemini.js';
+import { aiRunner } from '../services/ai.js';
 
 const router = Router();
 
@@ -124,14 +124,14 @@ router.post('/:id/analyze', requireAuth, validateObjectId('id'), async (req, res
       return res.status(422).json({ error: 'Resume has no extracted text to analyze' });
     }
 
-    // Run all 3 Gemini analyses in parallel
+    // Run AI analysis via local Ollama model
     let analysisData;
     try {
-      analysisData = await analyzeResume(resume.extractedText);
+      analysisData = await aiRunner.analyze(resume.extractedText);
     } catch (err) {
       // Mark resume as errored so user can retry
       resume.status = 'error';
-      resume.errorMessage = err.message || 'Gemini API call failed';
+      resume.errorMessage = err.message || 'AI analysis call failed';
       await resume.save();
       return res.status(502).json({
         error: 'Analysis failed — please try again later',
@@ -233,7 +233,8 @@ router.get('/:id/report', requireAuth, validateObjectId('id'), async (req, res, 
 
     // Set headers for PDF download
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="Analysis-Report-${resume.fileName}.pdf"`);
+    const outFileName = resume.fileName.endsWith('.pdf') ? resume.fileName : `${resume.fileName}.pdf`;
+    res.setHeader('Content-Disposition', `attachment; filename="Analysis-Report-${outFileName}"`);
 
     // Pipe the document directly to the response
     doc.pipe(res);
