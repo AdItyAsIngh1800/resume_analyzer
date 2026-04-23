@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, FileText } from 'lucide-react';
+import { UploadCloud, FileText, AlertCircle, X, Sparkles } from 'lucide-react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { Spinner } from '@/components/Loading';
+import { Button } from '@/components/ui/Button';
 import { api, apiErrorMessage } from '@/utils/api';
 
 function UploadInner() {
@@ -17,7 +17,7 @@ function UploadInner() {
     if (accepted[0]) setFile(accepted[0]);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone({
     onDrop,
     accept: { 'application/pdf': ['.pdf'] },
     maxSize: 5 * 1024 * 1024,
@@ -43,52 +43,88 @@ function UploadInner() {
     }
   };
 
+  const rejection = fileRejections[0]?.errors[0]?.message;
+
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-2">Upload your resume</h1>
-      <p className="text-gray-600 mb-6">PDF only, up to 5 MB.</p>
+      <h1 className="text-3xl font-bold text-ink tracking-tight">Upload your resume</h1>
+      <p className="text-gray-600 mt-2">PDF only, up to 5 MB. Analysis runs locally on your Ollama model.</p>
 
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition ${
-          isDragActive ? 'border-primary bg-blue-50' : 'border-gray-300 bg-white hover:border-primary'
-        }`}
+        className={[
+          'mt-6 border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition',
+          isDragActive
+            ? 'border-brand-500 bg-brand-50 scale-[1.01]'
+            : 'border-gray-300 bg-white/70 hover:border-brand-400 hover:bg-brand-50/40',
+        ].join(' ')}
       >
         <input {...getInputProps()} />
-        <UploadCloud className="mx-auto text-gray-400" size={40} />
-        <p className="mt-3 font-medium">
-          {isDragActive ? 'Drop it here' : 'Drag & drop your PDF here, or click to browse'}
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-brand text-white flex items-center justify-center shadow-pop">
+          <UploadCloud size={24} />
+        </div>
+        <p className="mt-4 font-semibold text-ink">
+          {isDragActive ? 'Drop it here' : 'Drag & drop your PDF'}
         </p>
-        <p className="text-xs text-gray-500 mt-1">Max 5 MB · PDF only</p>
+        <p className="text-sm text-gray-500 mt-1">
+          or <span className="text-brand-600 font-medium underline underline-offset-2">click to browse</span>
+          · Max 5 MB
+        </p>
       </div>
 
+      {rejection && !file && (
+        <div className="mt-3 flex items-center gap-2 text-sm text-amber-700 bg-amber-50 ring-1 ring-amber-100 rounded-xl p-3">
+          <AlertCircle size={14} /> {rejection}
+        </div>
+      )}
+
       {file && (
-        <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200 flex items-center gap-3">
-          <FileText className="text-primary" size={20} />
-          <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">{file.name}</p>
-            <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+        <div className="mt-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-card flex items-center gap-3">
+          <div className="shrink-0 w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+            <FileText size={18} />
           </div>
-          <button onClick={() => setFile(null)} className="text-sm text-gray-500 hover:text-error">
-            Remove
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-ink truncate">{file.name}</p>
+            <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB · ready to analyze</p>
+          </div>
+          <button
+            onClick={() => setFile(null)}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition"
+            aria-label="Remove file"
+          >
+            <X size={16} />
           </button>
         </div>
       )}
 
       {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-error">{error}</div>
+        <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-red-50 ring-1 ring-red-100 text-sm text-red-700">
+          <AlertCircle size={16} className="mt-0.5 shrink-0" />
+          <div>{error}</div>
+        </div>
       )}
 
-      <button
+      <Button
         onClick={handleAnalyze}
-        disabled={!file || stage !== 'idle'}
-        className="mt-6 w-full bg-primary text-white rounded py-3 font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+        disabled={!file}
+        loading={stage !== 'idle'}
+        size="lg"
+        className="mt-6 w-full"
       >
-        {stage !== 'idle' && <Spinner size={16} />}
-        {stage === 'uploading' && 'Uploading...'}
-        {stage === 'analyzing' && 'Analyzing with AI — this takes ~10s...'}
-        {stage === 'idle' && 'Analyze resume'}
-      </button>
+        {stage === 'uploading' && 'Uploading…'}
+        {stage === 'analyzing' && 'Analyzing with AI — this may take 15–45s…'}
+        {stage === 'idle' && (
+          <>
+            <Sparkles size={18} /> Analyze resume
+          </>
+        )}
+      </Button>
+
+      {stage === 'analyzing' && (
+        <p className="mt-3 text-xs text-gray-500 text-center">
+          Tip: the local model is single-threaded — don't refresh the page.
+        </p>
+      )}
     </div>
   );
 }

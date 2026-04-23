@@ -1,8 +1,10 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { AlertCircle, LogIn } from 'lucide-react';
 import { useAuth } from '@/store/auth';
-import { Spinner } from '@/components/Loading';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,45 +19,51 @@ export default function LoginPage() {
       const next = typeof router.query.next === 'string' ? router.query.next : '/dashboard';
       router.push(next);
     } catch {
-      // error surfaced via store
+      /* error surfaced via store */
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 bg-white p-8 rounded-lg border border-gray-200">
-      <h1 className="text-2xl font-bold mb-6">Welcome back</h1>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input
+    <div className="max-w-md mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-3xl font-bold text-ink tracking-tight">Welcome back</h1>
+        <p className="text-gray-600 mt-1">Sign in to keep analyzing your resume.</p>
+      </div>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-7">
+        <form onSubmit={onSubmit} className="space-y-4">
+          <Input
+            label="Email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+            autoComplete="email"
+            placeholder="you@example.com"
           />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Password</label>
-          <input
+          <Input
+            label="Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+            autoComplete="current-password"
+            placeholder="••••••••"
           />
-        </div>
-        {error && <p className="text-sm text-error">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary text-white rounded py-2 font-medium hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
-        >
-          {loading && <Spinner size={16} />} Sign in
-        </button>
-      </form>
-      <p className="text-sm text-gray-600 mt-4 text-center">
-        No account? <Link href="/register">Create one</Link>
+          {error && (
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 ring-1 ring-red-100 text-sm text-red-700">
+              <AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}
+            </div>
+          )}
+          <Button type="submit" loading={loading} className="w-full" size="lg">
+            <LogIn size={16} /> Sign in
+          </Button>
+        </form>
+      </div>
+      <p className="text-sm text-gray-600 mt-5 text-center">
+        No account?{' '}
+        <Link href="/register" className="font-medium text-brand-600 hover:text-brand-700">
+          Create one
+        </Link>
       </p>
     </div>
   );

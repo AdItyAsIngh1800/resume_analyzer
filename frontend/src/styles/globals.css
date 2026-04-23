@@ -7,10 +7,40 @@ html, body, #__next {
 }
 
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
+  @apply text-ink antialiased;
   font-family: Inter, system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(1200px 600px at 10% -10%, rgba(99, 102, 241, 0.08), transparent 60%),
+    radial-gradient(1000px 500px at 90% 10%, rgba(139, 92, 246, 0.06), transparent 60%);
+  background-attachment: fixed;
 }
 
 a {
-  @apply text-primary hover:underline;
+  @apply text-brand-600 hover:text-brand-700;
+  text-decoration: none;
+}
+
+/* Smoother default focus ring, accessible + brand-coloured */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
+  border-radius: 0.5rem;
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.15); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(15, 23, 42, 0.25); }
+
+/* Shimmer utility used by Skeleton */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.6) 0%,
+    rgba(226, 232, 240, 1.0) 50%,
+    rgba(226, 232, 240, 0.6) 100%
+  );
+  background-size: 200% 100%;
+  @apply animate-shimmer rounded-md;
 }

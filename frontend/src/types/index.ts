@@ -19,6 +19,7 @@ export interface Skill {
   name: string;
   category: string;
   proficiency: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  yearsOfExperience?: number | null;
 }
 
 export interface Improvement {
@@ -29,7 +30,8 @@ export interface Improvement {
 
 export interface MissingSkill {
   name: string;
-  importance: 'critical' | 'recommended' | 'nice-to-have';
+  category?: string;
+  importance: 'critical' | 'recommended' | 'nice_to_have' | 'nice-to-have';
   reason: string;
 }
 
@@ -37,12 +39,15 @@ export interface Analysis {
   _id: string;
   resumeId: string;
   atsScore: number;
-  summary: string;
+  atsFeedback?: string;
+  summary?: string;         // legacy alias
+  overallSummary?: string;
   strengths: string[];
   weaknesses: string[];
   skills: Skill[];
   improvements: Improvement[];
   missingSkills: MissingSkill[];
+  modelUsed?: string;
   processingTimeMs?: number;
   createdAt: string;
 }

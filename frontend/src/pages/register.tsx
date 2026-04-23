@@ -1,8 +1,10 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { AlertCircle, UserPlus } from 'lucide-react';
 import { useAuth } from '@/store/auth';
-import { Spinner } from '@/components/Loading';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,56 +19,61 @@ export default function RegisterPage() {
       await register(name, email, password);
       router.push('/upload');
     } catch {
-      // error surfaced via store
+      /* error surfaced via store */
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 bg-white p-8 rounded-lg border border-gray-200">
-      <h1 className="text-2xl font-bold mb-6">Create your account</h1>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Name</label>
-          <input
+    <div className="max-w-md mx-auto">
+      <div className="text-center mb-6">
+        <h1 className="text-3xl font-bold text-ink tracking-tight">Create your account</h1>
+        <p className="text-gray-600 mt-1">Free tier — 3 analyses to try it out.</p>
+      </div>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-7">
+        <form onSubmit={onSubmit} className="space-y-4">
+          <Input
+            label="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+            autoComplete="name"
+            placeholder="Ada Lovelace"
           />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input
+          <Input
+            label="Email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+            autoComplete="email"
+            placeholder="you@example.com"
           />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Password</label>
-          <input
+          <Input
+            label="Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+            autoComplete="new-password"
+            placeholder="At least 8 characters"
+            hint="Minimum 8 characters. Choose something memorable but hard to guess."
           />
-          <p className="text-xs text-gray-500 mt-1">Minimum 8 characters.</p>
-        </div>
-        {error && <p className="text-sm text-error">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary text-white rounded py-2 font-medium hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
-        >
-          {loading && <Spinner size={16} />} Create account
-        </button>
-      </form>
-      <p className="text-sm text-gray-600 mt-4 text-center">
-        Already have an account? <Link href="/login">Sign in</Link>
+          {error && (
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 ring-1 ring-red-100 text-sm text-red-700">
+              <AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}
+            </div>
+          )}
+          <Button type="submit" loading={loading} className="w-full" size="lg">
+            <UserPlus size={16} /> Create account
+          </Button>
+        </form>
+      </div>
+      <p className="text-sm text-gray-600 mt-5 text-center">
+        Already have an account?{' '}
+        <Link href="/login" className="font-medium text-brand-600 hover:text-brand-700">
+          Sign in
+        </Link>
       </p>
     </div>
   );
