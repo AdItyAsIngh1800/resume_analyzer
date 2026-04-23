@@ -23,31 +23,31 @@
 
 ---
 
-## Phase 2b — Claude API Integration (Week 3)
+## Phase 2b — Gemini API Integration (Week 3)
 
-- [ ] **#10** Create AnalysisResult model and schema
-- [ ] **#11** Create Claude service — skill extraction
-- [ ] **#12** Create Claude service — ATS scoring
-- [ ] **#13** Create Claude service — missing skills analysis
-- [ ] **#14** Create analysis endpoint
-- [ ] **#15** Test Claude API integration
+- [x] **#10** Create AnalysisResult model and schema
+- [x] **#11** Create Gemini service — skill extraction
+- [x] **#12** Create Gemini service — ATS scoring
+- [x] **#13** Create Gemini service — missing skills analysis
+- [x] **#14** Create analysis endpoint
+- [x] **#15** Test Gemini API integration
 
 ---
 
 ## Phase 2c — Job Matching (Week 4)
 
-- [ ] **#16** Create Job model and schema
-- [ ] **#17** Seed sample jobs (20–30)
-- [ ] **#18** Create job matching algorithm
-- [ ] **#19** Create matches endpoint
-- [ ] **#20** Test job matching
+- [x] **#16** Create Job model and schema
+- [x] **#17** Seed sample jobs (20–30)
+- [x] **#18** Create job matching algorithm
+- [x] **#19** Create matches endpoint
+- [x] **#20** Test job matching
 
 ---
 
 ## Phase 2d — Reports (Week 4 end)
 
-- [ ] **#21** Create PDF report generation service
-- [ ] **#22** Create report download endpoint
+- [x] **#21** Create PDF report generation service
+- [x] **#22** Create report download endpoint
 
 ---
 
@@ -101,10 +101,10 @@
 |-------|------|-------|
 | Phase 1 — Infrastructure | 5 | 5 |
 | Phase 2a — Resume Processing | 4 | 4 |
-| Phase 2b — Claude API | 0 | 6 |
-| Phase 2c — Job Matching | 0 | 5 |
-| Phase 2d — Reports | 0 | 2 |
+| Phase 2b — Gemini API | 6 | 6 |
+| Phase 2c — Job Matching | 5 | 5 |
+| Phase 2d — Reports | 2 | 2 |
 | Phase 2e — Backend Polish | 0 | 2 |
 | Phase 3 — Frontend | 0 | 13 |
 | Phase 4 — QA & Launch | 0 | 14 |
-| **Total** | **9** | **51** |
+| **Total** | **22** | **51** |
