@@ -23,14 +23,15 @@
 
 ---
 
-## Phase 2b — Gemini API Integration (Week 3)
+## Phase 2b — AI Integration (Week 3)
 
 - [x] **#10** Create AnalysisResult model and schema
-- [x] **#11** Create Gemini service — skill extraction
-- [x] **#12** Create Gemini service — ATS scoring
-- [x] **#13** Create Gemini service — missing skills analysis
+- [x] **#11** Create AI service — skill extraction
+- [x] **#12** Create AI service — ATS scoring
+- [x] **#13** Create AI service — missing skills analysis
 - [x] **#14** Create analysis endpoint
-- [x] **#15** Test Gemini API integration
+- [x] **#15** Test AI integration
+- [x] **#15b** Switch from Gemini API → Ollama local model (no rate limits)
 
 ---
 
@@ -76,20 +77,35 @@
 
 ---
 
-## Phase 4 — Testing, QA & Launch (Weeks 8–10)
+## Phase 4a — Testing & QA (Week 8)
 
 - [ ] **#38** Write backend unit tests
 - [ ] **#39** Write backend integration tests
 - [ ] **#40** Manual QA — authentication flow
 - [ ] **#41** Manual QA — resume upload and parsing
-- [ ] **#42** Manual QA — analysis and results display
+- [x] **#42** Manual QA — analysis and results display
 - [ ] **#43** Manual QA — job matching
 - [ ] **#44** Manual QA — mobile responsiveness
+
+---
+
+## Phase 4b — Optimization & Security (Week 9)
+
 - [ ] **#45** Performance testing and optimization
 - [ ] **#46** Security audit and fixes
+
+---
+
+## Phase 4c — CI/CD & Deployment (Week 9 end)
+
 - [ ] **#47** Setup GitHub Actions CI/CD
 - [ ] **#48** Deploy backend to production
 - [ ] **#49** Deploy frontend to Vercel
+
+---
+
+## Phase 4d — Monitoring & Documentation (Week 10)
+
 - [ ] **#50** Setup monitoring and logging
 - [ ] **#51** Create portfolio demo script
 
@@ -101,10 +117,13 @@
 |-------|------|-------|
 | Phase 1 — Infrastructure | 5 | 5 |
 | Phase 2a — Resume Processing | 4 | 4 |
-| Phase 2b — Gemini API | 6 | 6 |
+| Phase 2b — AI Integration (Ollama) | 7 | 7 |
 | Phase 2c — Job Matching | 5 | 5 |
 | Phase 2d — Reports | 2 | 2 |
 | Phase 2e — Backend Polish | 2 | 2 |
 | Phase 3 — Frontend | 13 | 13 |
-| Phase 4 — QA & Launch | 0 | 14 |
-| **Total** | **37** | **51** |
+| Phase 4a — Testing & QA | 1 | 7 |
+| Phase 4b — Optimization & Security | 0 | 2 |
+| Phase 4c — CI/CD & Deployment | 0 | 3 |
+| Phase 4d — Monitoring & Documentation | 0 | 2 |
+| **Total** | **39** | **52** |
