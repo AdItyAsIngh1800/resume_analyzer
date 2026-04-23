@@ -1,13 +1,11 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import { connectDB } from '../config/database.js';
 import authRoutes from './routes/auth.js';
 import resumeRoutes from './routes/resumes.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
