@@ -21,9 +21,12 @@ function checkRule(value, rule) {
     errors.push(`${field} must be a number`);
     return errors;
   }
-  if (type === 'email' && (typeof value !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))) {
-    errors.push(`${field} must be a valid email`);
-    return errors;
+  if (type === 'email') {
+    const emailRe = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+    if (typeof value !== 'string' || !emailRe.test(value) || value.includes('..')) {
+      errors.push(`${field} must be a valid email address`);
+      return errors;
+    }
   }
 
   if (typeof value === 'string') {

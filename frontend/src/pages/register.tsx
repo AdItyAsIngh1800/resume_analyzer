@@ -6,15 +6,34 @@ import { useAuth } from '@/store/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
+const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
+function isValidEmail(value: string) {
+  return EMAIL_RE.test(value) && !value.includes('..');
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const { register, loading, error } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const onEmailBlur = () => {
+    if (email && !isValidEmail(email)) {
+      setEmailError('Please enter a valid email address (e.g. you@gmail.com)');
+    } else {
+      setEmailError('');
+    }
+  };
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!isValidEmail(email)) {
+      setEmailError('Please enter a valid email address (e.g. you@gmail.com)');
+      return;
+    }
     try {
       await register(name, email, password);
       router.push('/upload');
@@ -43,10 +62,12 @@ export default function RegisterPage() {
             label="Email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
+            onBlur={onEmailBlur}
             required
             autoComplete="email"
-            placeholder="you@example.com"
+            placeholder="you@gmail.com"
+            error={emailError}
           />
           <Input
             label="Password"
