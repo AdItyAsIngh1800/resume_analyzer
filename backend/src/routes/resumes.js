@@ -210,8 +210,8 @@ router.get('/:id/matches', requireAuth, validateObjectId('id'), async (req, res,
     const { findMatchingJobs } = await import('../services/jobMatcher.js');
     const matches = await findMatchingJobs(analysis.skills);
 
-    // Return top 10 matches
-    res.json({ matches: matches.slice(0, 10) });
+    // Return top 20 matches (live API gives us more candidates now)
+    res.json({ matches: matches.slice(0, 20) });
   } catch (err) {
     next(err);
   }
