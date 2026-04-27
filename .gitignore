@@ -58,3 +58,8 @@ coverage/
 # Python virtual environments
 *.egg-info/
 dist-info/
+.claude/
+*.agent/
+graphify-out/
+
+.obsidian/
