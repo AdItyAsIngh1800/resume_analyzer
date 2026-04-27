@@ -74,6 +74,8 @@
 - [x] **#35** Create API utility functions
 - [x] **#36** Add loading states throughout UI
 - [x] **#37** Add error boundaries and error display
+- [x] **#37b** Frontend design system — Tailwind brand tokens, shadow/gradient utilities, UI primitives (Button, Card, Badge, Skeleton, Input)
+- [x] **#37c** Frontend component & page polish — Header, Layout, ATSScore, SkillCard, JobCard, and all page refreshes (landing, dashboard, upload, results, matches, auth)
 
 ---
 
@@ -121,9 +123,9 @@
 | Phase 2c — Job Matching | 5 | 5 |
 | Phase 2d — Reports | 2 | 2 |
 | Phase 2e — Backend Polish | 2 | 2 |
-| Phase 3 — Frontend | 13 | 13 |
+| Phase 3 — Frontend | 15 | 15 |
 | Phase 4a — Testing & QA | 7 | 7 |
 | Phase 4b — Optimization & Security | 2 | 2 |
 | Phase 4c — CI/CD & Deployment | 0 | 3 |
 | Phase 4d — Monitoring & Documentation | 0 | 2 |
-| **Total** | **47** | **52** |
+| **Total** | **49** | **54** |
