@@ -1,16 +1,20 @@
-// ── AI Service — Ollama (Local Model) ──────────────────────────────────
-// Replaces Gemini API with a locally-running Ollama model.
-// Zero rate limits, no API keys, fully offline-capable.
+// ── AI Service ─────────────────────────────────────────────────────────
+// Supports two backends, selected automatically at startup:
+//   • Gemini (cloud)  — when GEMINI_API_KEY is set (production default)
+//   • Ollama (local)  — fallback for local dev (no API key needed)
 //
-// Prerequisites:
-//   brew install ollama
-//   brew services start ollama
+// Local dev prerequisites:
+//   brew install ollama && brew services start ollama
 //   ollama pull llama3.1:8b
-//
-// Override model via OLLAMA_MODEL env var.
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
 const MODEL = process.env.OLLAMA_MODEL || 'llama3.1:8b';
+
+const USE_GEMINI = Boolean(GEMINI_API_KEY);
 
 // ── Concurrency mutex ──────────────────────────────────────────────────
 // Local models are single-threaded; serialize requests to avoid overload.
@@ -74,6 +78,50 @@ async function callOllama(prompt, systemPrompt) {
       if (!isTransient(err) || attempt === MAX_ATTEMPTS - 1) break;
       const backoffMs = 1000 * Math.pow(2, attempt) + Math.floor(Math.random() * 500);
       console.warn(`[AI] Attempt ${attempt + 1} failed (${err.message}), retrying in ${backoffMs}ms...`);
+      await sleep(backoffMs);
+    }
+  }
+  throw lastErr;
+}
+
+// ── Gemini backend ────────────────────────────────────────────────────
+
+async function callGemini(prompt, systemPrompt) {
+  let lastErr;
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    try {
+      const url = `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+      const body = {
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.3,
+          responseMimeType: 'application/json',
+        },
+      };
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(60_000),
+      });
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        throw new Error(`Gemini HTTP ${response.status}: ${text}`);
+      }
+
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!text.trim()) throw new Error('Gemini returned empty response');
+
+      return JSON.parse(text);
+    } catch (err) {
+      lastErr = err;
+      if (!isTransient(err) || attempt === MAX_ATTEMPTS - 1) break;
+      const backoffMs = 1000 * Math.pow(2, attempt) + Math.floor(Math.random() * 500);
+      console.warn(`[AI/Gemini] Attempt ${attempt + 1} failed (${err.message}), retrying in ${backoffMs}ms...`);
       await sleep(backoffMs);
     }
   }
@@ -198,7 +246,9 @@ export async function analyzeResume(resumeText) {
   const start = Date.now();
 
   const prompt = ANALYSIS_PROMPT.replace('{RESUME_TEXT}', resumeText);
-  const rawResult = await callOllama(prompt, SYSTEM_PROMPT);
+  const rawResult = USE_GEMINI
+    ? await callGemini(prompt, SYSTEM_PROMPT)
+    : await callOllama(prompt, SYSTEM_PROMPT);
   const result = validateAndNormalize(rawResult);
 
   const processingTimeMs = Date.now() - start;
@@ -212,7 +262,7 @@ export async function analyzeResume(resumeText) {
     weaknesses: result.weaknesses,
     overallSummary: result.overallSummary,
     missingSkills: result.missingSkills,
-    modelUsed: MODEL,
+    modelUsed: USE_GEMINI ? GEMINI_MODEL : MODEL,
     processingTimeMs,
   };
 }
@@ -229,9 +279,29 @@ export const aiRunner = { analyze: analyzeResume };
  * Returns { ok, model, error? }
  */
 export async function checkOllamaHealth() {
+  if (USE_GEMINI) {
+    try {
+      const url = `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'ping' }] }] }),
+        signal: AbortSignal.timeout(8_000),
+      });
+      return {
+        ok: resp.ok || resp.status === 400, // 400 = bad prompt but API is up
+        backend: 'gemini',
+        model: GEMINI_MODEL,
+        error: resp.ok || resp.status === 400 ? undefined : `Gemini HTTP ${resp.status}`,
+      };
+    } catch (err) {
+      return { ok: false, backend: 'gemini', model: GEMINI_MODEL, error: err.message };
+    }
+  }
+
   try {
     const resp = await fetch(`${OLLAMA_BASE_URL}/api/tags`);
-    if (!resp.ok) return { ok: false, model: MODEL, error: `Ollama HTTP ${resp.status}` };
+    if (!resp.ok) return { ok: false, backend: 'ollama', model: MODEL, error: `Ollama HTTP ${resp.status}` };
 
     const data = await resp.json();
     const models = (data.models || []).map((m) => m.name);
@@ -239,6 +309,7 @@ export async function checkOllamaHealth() {
 
     return {
       ok: found,
+      backend: 'ollama',
       model: MODEL,
       availableModels: models,
       error: found ? undefined : `Model "${MODEL}" not found. Run: ollama pull ${MODEL}`,
@@ -246,6 +317,7 @@ export async function checkOllamaHealth() {
   } catch (err) {
     return {
       ok: false,
+      backend: 'ollama',
       model: MODEL,
       error: `Ollama not reachable at ${OLLAMA_BASE_URL}: ${err.message}`,
     };

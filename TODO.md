@@ -100,8 +100,8 @@
 
 ## Phase 4c — CI/CD & Deployment (Week 9 end)
 
-- [ ] **#47** Setup GitHub Actions CI/CD
-- [ ] **#48** Deploy backend to production
+- [x] **#47** Setup GitHub Actions CI/CD
+- [x] **#48** Deploy backend to production
 - [ ] **#49** Deploy frontend to Vercel
 
 ---
@@ -126,6 +126,6 @@
 | Phase 3 — Frontend | 15 | 15 |
 | Phase 4a — Testing & QA | 7 | 7 |
 | Phase 4b — Optimization & Security | 2 | 2 |
-| Phase 4c — CI/CD & Deployment | 0 | 3 |
+| Phase 4c — CI/CD & Deployment | 2 | 3 |
 | Phase 4d — Monitoring & Documentation | 0 | 2 |
 | **Total** | **49** | **54** |

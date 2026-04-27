@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: resume-analyzer-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
+      - key: JWT_SECRET
+        sync: false          # set in Render dashboard
+      - key: MONGODB_URI
+        sync: false          # set in Render dashboard (MongoDB Atlas URI)
+      - key: GEMINI_API_KEY
+        sync: false          # set in Render dashboard
+      - key: GEMINI_MODEL
+        value: gemini-1.5-flash
+      - key: FRONTEND_URL
+        sync: false          # set in Render dashboard (Vercel URL)
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d

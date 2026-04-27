@@ -1,22 +1,21 @@
 import Job from '../models/Job.js';
+import { fetchLiveJobs } from './graphqlJobsFetcher.js';
 
-/**
- * Calculates a match score between a user's skills and a job's requirements.
- *
- * Scoring logic:
- * - Each required skill matched: +2 points
- * - Each nice-to-have skill matched: +1 point
- *
- * Then normalizes the score to a percentage (0-100%).
- */
 export async function findMatchingJobs(userSkills) {
-  // Normalize user skills to lowercase for case-insensitive matching
   const normalizedUserSkills = new Set(
     userSkills.map((s) => s.name?.toLowerCase().trim()).filter(Boolean)
   );
 
-  // Fetch jobs as plain objects (lean) — we don't need Mongoose documents here.
-  const jobs = await Job.find({}).lean();
+  // Merge seeded DB jobs with live jobs from GraphQL Jobs API
+  const [dbJobs, liveJobs] = await Promise.allSettled([
+    Job.find({}).lean(),
+    fetchLiveJobs(),
+  ]);
+
+  const jobs = [
+    ...(dbJobs.status === 'fulfilled' ? dbJobs.value : []),
+    ...(liveJobs.status === 'fulfilled' ? liveJobs.value : []),
+  ];
 
   const matches = jobs.map((job) => {
     let score = 0;
