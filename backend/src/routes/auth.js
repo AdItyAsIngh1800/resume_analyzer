@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import { requireAuth } from '../middleware/auth.js';
 import { validateBody } from '../middleware/validate.js';
 import { ApiError } from '../middleware/errorHandler.js';
+import { validateGenuineEmail } from '../services/emailValidator.js';
 
 const router = Router();
 
@@ -27,6 +28,9 @@ const loginRules = [
 router.post('/register', validateBody(registerRules), async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
+
+    const emailCheck = await validateGenuineEmail(email);
+    if (!emailCheck.ok) throw new ApiError(400, emailCheck.reason);
 
     const existing = await User.findOne({ email });
     if (existing) throw new ApiError(409, 'An account with that email already exists');
