@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
 import Resume from '../models/Resume.js';
 import AnalysisResult from '../models/AnalysisResult.js';
 import User from '../models/User.js';
 import { requireAuth } from '../middleware/auth.js';
 import { validateObjectId } from '../middleware/validate.js';
-import { ApiError } from '../middleware/errorHandler.js';
 import { aiRunner } from '../services/ai.js';
+
+const require = createRequire(import.meta.url);
+const pdfParse = require('pdf-parse');
 
 const router = Router();
 

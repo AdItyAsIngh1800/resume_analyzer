@@ -21,7 +21,7 @@ const USE_GEMINI = Boolean(GEMINI_API_KEY);
 let queueTail = Promise.resolve();
 
 function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => { setTimeout(resolve, ms); });
 }
 
 // ── Retry + call helper ────────────────────────────────────────────────
@@ -36,6 +36,7 @@ async function callOllama(prompt, systemPrompt) {
   let lastErr;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     // Serialize through the mutex
+    // eslint-disable-next-line no-loop-func
     await new Promise((resolve) => {
       const prev = queueTail;
       queueTail = prev.then(() => resolve(), () => resolve());
@@ -54,8 +55,8 @@ async function callOllama(prompt, systemPrompt) {
           format: 'json',
           stream: false,
           options: {
-            temperature: 0.3,       // lower for more consistent structured output
-            num_predict: 16384,     // large enough for full combined analysis response
+            temperature: 0.3, // lower for more consistent structured output
+            num_predict: 16384, // large enough for full combined analysis response
           },
         }),
       });
