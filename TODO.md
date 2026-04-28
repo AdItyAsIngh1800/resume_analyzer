@@ -95,10 +95,11 @@
 
 - [x] **#45** Performance testing and optimization (`.lean()`, compression, bench script, `docs/PERFORMANCE.md`)
 - [x] **#46** Security audit and fixes (helmet, JWT startup check, filename sanitization, `docs/SECURITY.md`)
+- [x] **#46b** Genuine email validation on signup (DNS MX lookup + disposable domain blocklist)
 
 ---
 
-## Phase 4c — CI/CD & Deployment (Week 9 end)
+## Phase 4c — CI/CD & Deployment (Week 9 end) — **← active phase**
 
 - [x] **#47** Setup GitHub Actions CI/CD
 - [x] **#48** Deploy backend to production
@@ -125,7 +126,7 @@
 | Phase 2e — Backend Polish | 2 | 2 |
 | Phase 3 — Frontend | 15 | 15 |
 | Phase 4a — Testing & QA | 7 | 7 |
-| Phase 4b — Optimization & Security | 2 | 2 |
+| Phase 4b — Optimization & Security | 3 | 3 |
 | Phase 4c — CI/CD & Deployment | 2 | 3 |
 | Phase 4d — Monitoring & Documentation | 0 | 2 |
-| **Total** | **49** | **54** |
+| **Total** | **50** | **55** |
